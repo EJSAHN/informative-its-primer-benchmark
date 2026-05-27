@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+results/
+data/raw_fasta/
+data/genbank/
+data/raw_fasta_ncbi/
+data/genbank_ncbi/
+.DS_Store
