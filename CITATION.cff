@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this pipeline, please cite the associated manuscript."
+title: "Data-quality-aware ITS primer benchmarking"
+authors:
+  - family-names: "Ahn"
+    given-names: "Ezekiel"
+version: "1.0.0"
