@@ -1,0 +1,40 @@
+name: Apply repository update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.repository_update_trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild repository contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .repository_update_payload.part* | base64 --decode > /tmp/repository_update.zip
+          rm -rf /tmp/repository_update
+          mkdir -p /tmp/repository_update
+          unzip -q /tmp/repository_update.zip -d /tmp/repository_update
+          source_root="/tmp/repository_update/informative-its-primer-benchmark"
+          test -f "$source_root/README.md"
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$source_root"/. .
+          rm -f .repository_update_trigger .repository_update_payload.part*
+      - name: Commit update
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add structured metadata filtering and reproducibility tests"
+          git push origin main
