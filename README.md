@@ -1,82 +1,125 @@
 # Informative-site ITS primer benchmark
 
-This repository provides a data-quality-aware workflow for ITS primer benchmarking. It flags terminal, primer-derived, and otherwise non-informative primer sites before scoring primer-template mismatches, so coverage estimates are based on records that are informative for direct primer-template inference.
+This repository provides a data-quality-aware workflow for ITS primer benchmarking. It separates records that are informative for direct primer-template inference from records affected by missing sites, terminal sequence, or trusted metadata indicating use of the same primer.
 
-## What the workflow does
+## Analysis steps
 
-1. Reads species-organized FASTA files and a primer-pair catalog.
-2. Flags primer sites that are terminal, metadata-derived, missing, or informative internal sequence.
-3. Scores informative primer pairs under strict mismatch and amplicon-length rules.
-4. Summarizes coverage over informative/eligible denominators and archive-wide denominators.
-5. Exports row-level calls, deduplicated calls, summary tables, and an optional consolidated Excel workbook.
+1. Read species-organized FASTA records and a primer-pair catalog.
+2. Locate primer sites with IUPAC-aware matching.
+3. Exclude detected sites that overlap the terminal primer-length segment.
+4. Exclude detected sites supported by primer-specific GenBank qualifiers such as `/PCR_primers`.
+5. Retain ordinary ITS locus-name matches in descriptions, notes, and references as context-only audit evidence.
+6. Score informative pairs under predefined mismatch and amplicon-length rules.
+7. Export row-level calls, denominator summaries, filtering audits, sensitivity analyses, and an optional Excel workbook.
 
-The workflow exports numerical tables only; figure rendering is not included.
+The repository produces numerical outputs only; figure rendering is not included.
 
 ## Repository contents
 
 ```text
-run_pipeline.py                  Pipeline runner
-its_benchmark/                   Python modules
-data/pair_catalog_auto.csv       Primer-pair catalog used by the benchmark
-data/accession_species_list.csv  GenBank accessions and target labels used in the worked example
-data/species_counts.csv          Species-level accession counts for the worked example
-requirements.txt                 Python dependencies
+run_analysis.py                         Complete numerical analysis
+its_benchmark/                          Python modules
+data/pair_catalog_auto.csv              Primer-pair catalog
+data/accession_species_list.csv         Versioned accession list used in the case study
+data/accession_sequence_manifest.csv    Sequence lengths and SHA-256 hashes
+data/study_expected_metrics.json        Optional worked-example validation targets
+tests/minimal_data/                     Synthetic test inputs
+tests/expected/                         Expected test outputs
+requirements.txt                        Exact software versions used for the analysis
 ```
-
-The worked-example FASTA and GenBank records are not bundled in this repository. They can be regenerated from the accession list or supplied as local FASTA folders with the same species labels.
 
 ## Installation
 
+Python 3.10 is recommended.
+
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scriptsctivate
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-## Input organization
-
-Place FASTA files in species folders under a common root, for example:
-
-```text
-data/raw_fasta/
-  Mperniciosa/
-  Mroreri/
-  Ppalmivora/
-  Pmegakarya/
-```
-
-The default pair catalog is included at:
-
-```text
-data/pair_catalog_auto.csv
-```
-
-## Run the workflow
+## Minimal test
 
 ```bash
-python run_pipeline.py   --fasta-root data/raw_fasta   --pair-catalog data/pair_catalog_auto.csv   --genbank-dir data/genbank   --terminal-mode primer_length   --export-workbook
+python tests/run_minimal_test.py --project-root .
 ```
 
-If GenBank metadata are not available, omit `--genbank-dir`.
+The test covers an informative pair, a terminal site, a missing reverse site, trusted `/PCR_primers` evidence, an ambiguous binding window, and context-only ITS locus labels.
 
-## Main output files
+## Obtain the case-study records
+
+The repository includes versioned accessions but not the downloaded sequence files. Fetch them from NCBI:
+
+```bash
+python -m its_benchmark.fetch_genbank_records \
+  --accessions data/accession_species_list.csv \
+  --fasta-root data/raw_fasta \
+  --genbank-dir data/genbank \
+  --email you@example.org
+```
+
+Validate the downloaded sequences against the frozen hash manifest:
+
+```bash
+python -m its_benchmark.validate_sequences \
+  --fasta-root data/raw_fasta \
+  --manifest data/accession_sequence_manifest.csv \
+  --out results/sequence_manifest_validation.csv
+```
+
+## Run the complete numerical analysis
+
+```bash
+python run_analysis.py \
+  --fasta-root data/raw_fasta \
+  --pair-catalog data/pair_catalog_auto.csv \
+  --genbank-dir data/genbank \
+  --validate-study
+```
+
+Omit `--validate-study` when applying the workflow to another dataset.
+
+## Main scoring defaults
+
+- Site search: no more than 4 mismatches per primer.
+- Strict call: no more than 2 total mismatches across the pair.
+- Strict call: no 3′-terminal mismatch on either primer.
+- Strict call: product length within the pair-specific window.
+- Terminal filter: one primer length from either record end.
+- Metadata exclusion: trusted primer-specific fields only.
+- Ambiguity follow-up: binding windows with more than 5% ambiguous bases are flagged but not automatically excluded.
+
+## Main outputs
 
 ```text
-results/tables/site_flags_ncbi_primerlength_metadata.csv
-results/tables/calls_ncbi_primerlength_metadata.csv
-results/tables/ncbi_primerlength_metadata/Table_all_pairs_by_species_informative.csv
-results/tables/ncbi_primerlength_metadata/calls_deduplicated.csv
-results/Supplementary_Data_S1.xlsx
+results/main/site_flags.csv
+results/main/pair_calls.csv
+results/main/species_pair_summary.csv
+results/main/denominator_summary.csv
+results/audit/flag_source_summary.csv
+results/audit/mismatch_sensitivity.csv
+results/audit/deduplication_sensitivity.csv
+results/audit/terminal_scenario_totals.csv
+results/benchmark_results.xlsx
+results/sha256_manifest.tsv
 ```
-
-## Strict scoring defaults
-
-- Primer-site search tolerance: <=4 mismatches per primer.
-- Strict hit: <=2 total mismatches across the primer pair.
-- Strict hit: no 3-prime terminal mismatch on either primer.
-- Strict hit: product length within the predefined pair-specific window.
-- Main terminal filter: primer-length terminal window.
 
 ## Interpretation
 
-Archive-wide coverage is reported only as a denominator-error diagnostic. Recommended performance estimates should be interpreted using informative and eligible denominators.
+`coverage_pct_eligible` is the strict-hit percentage among eligible informative rows. `coverage_pct_all` uses all deduplicated records for the corresponding species and primer pair and is retained only to quantify denominator distortion. Rarefaction outputs summarize observed internal binding-site words and are not evidence of biological haplotypes without independent validation.
