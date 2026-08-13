@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "informative-its-primer-benchmark"
+version = "1.0.0"
+description = "Data-quality-aware ITS primer benchmarking with informative-site filtering."
+requires-python = ">=3.10"
+dependencies = [
+  "biopython==1.86",
+  "pandas==2.3.3",
+  "numpy==2.2.6",
+  "xlsxwriter==3.2.9",
+  "requests==2.32.5",
+]
+
+[tool.setuptools.packages.find]
+include = ["its_benchmark*"]

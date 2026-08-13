@@ -1,0 +1,10 @@
+name: informative-its-primer-benchmark
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10.19
+  - biopython=1.86
+  - pandas=2.3.3
+  - numpy=2.2.6
+  - xlsxwriter=3.2.9
+  - requests=2.32.5

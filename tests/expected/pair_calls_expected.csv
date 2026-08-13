@@ -1,0 +1,7 @@
+accession,informative_pair,eligible,strict_hit,elig_reason
+TEST_INFO,True,1,1,
+TEST_TERMINAL,False,0,0,noninformative_fwd
+TEST_TRUNC,False,0,0,no_rev
+TEST_META,False,0,0,noninformative_fwd_rev
+TEST_AMBIG,True,1,1,
+TEST_CONTEXT,True,1,1,

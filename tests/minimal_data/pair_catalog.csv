@@ -1,0 +1,2 @@
+pair_name,fwd_name,rev_name,fwd,rev,tmin,tmax,tag
+ITS1/ITS2,ITS1,ITS2,TCCGTAGGTGAACCTGCGG,GCTGCGTTCTTCATCGATGC,60,100,test
