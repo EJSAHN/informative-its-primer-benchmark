@@ -1,0 +1,57 @@
+{
+  "description": "Expected totals for the accession set listed in accession_species_list.csv under the default structured metadata analysis.",
+  "total_rows": 24816,
+  "informative_rows": 255,
+  "eligible_rows": 240,
+  "strict_hits": 169,
+  "key_pairs": [
+    {
+      "species": "M. perniciosa",
+      "pair_name": "ITS1/ITS2",
+      "N": 384,
+      "informative": 31,
+      "eligible": 31,
+      "covered": 27
+    },
+    {
+      "species": "M. roreri",
+      "pair_name": "ITS1/ITS2",
+      "N": 258,
+      "informative": 27,
+      "eligible": 26,
+      "covered": 25
+    },
+    {
+      "species": "P. palmivora",
+      "pair_name": "ITS1/ITS2_KYO2",
+      "N": 1330,
+      "informative": 38,
+      "eligible": 38,
+      "covered": 37
+    },
+    {
+      "species": "M. perniciosa",
+      "pair_name": "fITS7/ITS4",
+      "N": 384,
+      "informative": 2,
+      "eligible": 2,
+      "covered": 2
+    },
+    {
+      "species": "M. roreri",
+      "pair_name": "fITS7/ITS4",
+      "N": 258,
+      "informative": 6,
+      "eligible": 5,
+      "covered": 5
+    },
+    {
+      "species": "P. palmivora",
+      "pair_name": "ITS3_KYO2/ITS4",
+      "N": 1330,
+      "informative": 8,
+      "eligible": 8,
+      "covered": 7
+    }
+  ]
+}

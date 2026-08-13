@@ -1,0 +1,7 @@
+accession,pair_status,fwd_site_status,rev_site_status,informative_pair,fwd_metadata_same_primer,fwd_metadata_context_name_match,fwd_ambiguity_followup
+TEST_INFO,informative_pair,informative_internal,informative_internal,True,False,False,False
+TEST_TERMINAL,noninformative_fwd,terminal_primer_derived_or_uninformative,informative_internal,False,False,False,False
+TEST_TRUNC,no_rev,informative_internal,no_site,False,False,False,False
+TEST_META,noninformative_fwd_rev,metadata_same_primer,metadata_same_primer,False,True,False,False
+TEST_AMBIG,informative_pair,informative_internal,informative_internal,True,False,False,True
+TEST_CONTEXT,informative_pair,informative_internal,informative_internal,True,False,True,False
